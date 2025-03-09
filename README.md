@@ -21,6 +21,12 @@ This Note-Taking API is a backend service that allows users to create, read, upd
 - **TypeScript** - Typed superset of JavaScript for enhanced code quality
 - **Postman** - API testing tool
 
+## Deployment
+
+This API has been **deployed on Render** and is accessible at:
+
+🚀 **Base URL:** [`https://note-taking-api-with-typescript.onrender.com`](https://note-taking-api-with-typescript.onrender.com)
+
 ## Project Implementation
 
 ### 1. Setting Up the Project
