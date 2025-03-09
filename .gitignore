@@ -3,5 +3,5 @@
 # *.js
 # *.js.map
 .env
-node_modules/
+# node_modules/
 
