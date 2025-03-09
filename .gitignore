@@ -1,0 +1,7 @@
+# dist/
+# build/
+# *.js
+# *.js.map
+.env
+node_modules/
+
