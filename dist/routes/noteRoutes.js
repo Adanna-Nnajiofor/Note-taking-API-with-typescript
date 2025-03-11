@@ -11,4 +11,5 @@ router.get("/:id", noteController_1.getNote);
 router.post("/", noteController_1.createNote);
 router.put("/:id", noteController_1.updateNote);
 router.delete("/:id", noteController_1.deleteNote);
+router.get("/category/:categoryId", noteController_1.getNotesByCategoryController);
 exports.default = router;

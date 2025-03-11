@@ -4,6 +4,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import noteRoutes from "./routes/noteRoutes";
 import { errorHandler } from "./middleware/errorMiddleware";
+import { loggerMiddleware } from "./middleware/loggerMiddleware";
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(loggerMiddleware);
 
 // Routes
 app.use("/api/notes", noteRoutes);

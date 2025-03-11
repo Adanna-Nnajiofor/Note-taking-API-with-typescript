@@ -1,14 +1,23 @@
-import { Schema, model, InferSchemaType } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
+import { Category } from "./Category";
 
-const noteSchema = new Schema(
+export interface Note extends Document {
+  _id: Types.ObjectId;
+  title: string;
+  content: string;
+  category: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const noteSchema = new Schema<Note>(
   {
     title: { type: String, required: true },
     content: { type: String, required: true },
+    category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
   },
-  { timestamps: { createdAt: true, updatedAt: true } }
+  { timestamps: true }
 );
 
-type INote = InferSchemaType<typeof noteSchema>;
-
-const Note = model<INote>("Note", noteSchema);
+const Note = model<Note>("Note", noteSchema);
 export default Note;

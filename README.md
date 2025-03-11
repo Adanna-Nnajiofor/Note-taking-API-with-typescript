@@ -6,9 +6,10 @@ This Note-Taking API is a backend service that allows users to create, read, upd
 
 ## Features
 
-- Create a new note
+- Create a new note with a title, content, and category
 - Retrieve all notes
 - Retrieve a single note by ID
+- Retrieve notes by category
 - Update an existing note
 - Delete a note
 
@@ -48,17 +49,28 @@ This API has been **deployed on Render** and is accessible at:
 - Implemented CRUD operations in `controllers/noteController.ts`
 - Defined the `Note` model using Mongoose in `models/Note.ts`
 
-### 4. Testing with Postman
+### 4. Adding Category Support
+
+- Updated the `Note` model to include a `categoryId` field
+- Modified the `createNote` and `updateNote` controllers to require `categoryId`
+- Added a new endpoint to retrieve notes by category
+
+### 5. Testing with Postman
 
 - **GET** `/api/notes` - Retrieve all notes
 - **GET** `/api/notes/:id` - Retrieve a specific note
-- **POST** `/api/notes` - Create a new note (requires title & content in request body)
-- **PUT** `/api/notes/:id` - Update a note (requires title & content in request body)
+- **GET** `/api/notes/category/:categoryId` - Retrieve notes by category
+- **POST** `/api/notes` - Create a new note (requires title, content, and categoryId in request body)
+- **PUT** `/api/notes/:id` - Update a note (requires title, content, and categoryId in request body)
 - **DELETE** `/api/notes/:id` - Delete a note
 
 ## How to Start the Development Server
 
-1. Start the development server:
+1. Compile TypeScript files:
+   ```sh
+   tsc
+   ```
+2. Start the development server:
    ```sh
    node dist/index.js
    ```
@@ -75,4 +87,4 @@ If you don't have a database, you can create a free one on [MongoDB Atlas](https
 
 ## Conclusion
 
-This Note-Taking API is a simple yet efficient backend system to manage notes with CRUD operations. It follows best practices for RESTful API design and is built with scalability in mind.
+This Note-Taking API is a simple yet efficient backend system to manage notes with CRUD operations. It follows best practices for RESTful API design and is built with scalability in mind. The addition of categories enhances organization and retrieval of notes, making the system more user-friendly and functional.

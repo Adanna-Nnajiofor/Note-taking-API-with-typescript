@@ -9,9 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteNote = exports.updateNote = exports.createNote = exports.getNote = exports.getNotes = void 0;
+exports.deleteNote = exports.updateNote = exports.createNote = exports.getNotesByCategoryController = exports.getNote = exports.getNotes = void 0;
 const noteService_1 = require("../services/noteService");
+const validateMiddleware_1 = require("../middleware/validateMiddleware");
 const noteValidation_1 = require("../validations/noteValidation");
+const loggerMiddleware_1 = require("../middleware/loggerMiddleware");
 // Get all notes
 const getNotes = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -38,17 +40,39 @@ const getNote = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.getNote = getNote;
+// Get notes by category
+const getNotesByCategoryController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { categoryId } = req.params;
+        // Validate categoryId format
+        if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+            res.status(400).json({ message: "Invalid category ID format" });
+            return;
+        }
+        const notes = yield (0, noteService_1.getNotesByCategory)(categoryId);
+        res.status(200).json(notes);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getNotesByCategoryController = getNotesByCategoryController;
 // Create a new note
 const createNote = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Validate input
-        const { error } = (0, noteValidation_1.validateNote)(req.body);
+        (0, loggerMiddleware_1.loggerMiddleware)(req, res, next);
+        // Validate request body using Joi
+        const { error } = (0, noteValidation_1.validateNoteInput)(req.body);
         if (error) {
             res.status(400).json({ message: error.details[0].message });
             return;
         }
-        const { title, content } = req.body;
-        const newNote = yield (0, noteService_1.createNewNote)(title, content);
+        // Validate data structure using custom validation
+        (0, validateMiddleware_1.validateMiddleware)(req.body);
+        // Extract fields correctly
+        const { title, content, category } = req.body;
+        // Create the new note
+        const newNote = yield (0, noteService_1.createNewNote)(title, content, category);
         res.status(201).json(newNote);
     }
     catch (error) {
@@ -59,14 +83,19 @@ exports.createNote = createNote;
 // Update an existing note
 const updateNote = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Validate input
-        const { error } = (0, noteValidation_1.validateNote)(req.body);
+        (0, loggerMiddleware_1.loggerMiddleware)(req, res, next);
+        // Validate request body using Joi
+        const { error } = (0, noteValidation_1.validateNoteInput)(req.body);
         if (error) {
             res.status(400).json({ message: error.details[0].message });
             return;
         }
-        const { title, content } = req.body;
-        const updatedNote = yield (0, noteService_1.updateExistingNote)(req.params.id, title, content);
+        // Validate data structure using custom validation
+        (0, validateMiddleware_1.validateMiddleware)(req.body);
+        // Extract fields correctly
+        const { title, content, category } = req.body;
+        // Update note
+        const updatedNote = yield (0, noteService_1.updateExistingNote)(req.params.id, title, content, category);
         if (!updatedNote) {
             res.status(404).json({ message: "Note not found" });
             return;
@@ -81,6 +110,7 @@ exports.updateNote = updateNote;
 // Delete a note
 const deleteNote = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        (0, loggerMiddleware_1.loggerMiddleware)(req, res, next);
         const deletedNote = yield (0, noteService_1.deleteNoteById)(req.params.id);
         if (!deletedNote) {
             res.status(404).json({ message: "Note not found" });

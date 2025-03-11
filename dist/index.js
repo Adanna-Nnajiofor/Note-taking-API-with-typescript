@@ -9,11 +9,13 @@ const cors_1 = __importDefault(require("cors"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const noteRoutes_1 = __importDefault(require("./routes/noteRoutes"));
 const errorMiddleware_1 = require("./middleware/errorMiddleware");
+const loggerMiddleware_1 = require("./middleware/loggerMiddleware");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 // Middleware
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
+app.use(loggerMiddleware_1.loggerMiddleware);
 // Routes
 app.use("/api/notes", noteRoutes_1.default);
 // Connect to MongoDB

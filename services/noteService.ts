@@ -2,22 +2,56 @@ import mongoose from "mongoose";
 import Note from "../models/Note";
 
 export const getAllNotes = async () => {
-  return await Note.find();
+  const notes = await Note.find();
+  return notes.length > 0 ? notes : [];
 };
 
 export const getNoteById = async (id: string) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    console.error("❌ Invalid ObjectId:", id);
+    return null;
+  }
   return await Note.findById(id);
 };
 
-export const createNewNote = async (title: string, content: string) => {
-  const newNote = new Note({ title, content });
-  return await newNote.save();
+export const getNotesByCategory = async (categoryId: string) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      console.error("❌ Invalid category ID:", categoryId);
+      return [];
+    }
+
+    return await Note.find({ category: categoryId });
+  } catch (error) {
+    console.error("❌ Error fetching notes by category:", error);
+    throw error;
+  }
+};
+
+export const createNewNote = async (
+  title: string,
+  content: string,
+  categoryId: string
+) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      console.error("❌ Invalid category ID:", categoryId);
+      return null;
+    }
+
+    const newNote = new Note({ title, content, category: categoryId });
+    return await newNote.save();
+  } catch (error) {
+    console.error("❌ Error creating new note:", error);
+    throw error;
+  }
 };
 
 export const updateExistingNote = async (
   id: string,
   title: string,
-  content: string
+  content: string,
+  categoryId: string
 ) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -27,7 +61,7 @@ export const updateExistingNote = async (
 
     const updatedNote = await Note.findByIdAndUpdate(
       id,
-      { title, content },
+      { title, content, category: categoryId },
       { new: true, runValidators: true }
     );
 
@@ -43,5 +77,9 @@ export const updateExistingNote = async (
 };
 
 export const deleteNoteById = async (id: string) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    console.error("❌ Invalid ObjectId:", id);
+    return null;
+  }
   return await Note.findByIdAndDelete(id);
 };
