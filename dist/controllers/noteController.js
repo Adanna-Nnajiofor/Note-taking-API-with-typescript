@@ -11,9 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteNote = exports.updateNote = exports.createNote = exports.getNotesByCategoryController = exports.getNote = exports.getNotes = void 0;
 const noteService_1 = require("../services/noteService");
-const validateMiddleware_1 = require("../middleware/validateMiddleware");
+// import { validateMiddleware } from "../middleware/validateMiddleware";
 const noteValidation_1 = require("../validations/noteValidation");
-const loggerMiddleware_1 = require("../middleware/loggerMiddleware");
+// import { loggerMiddleware } from "../middleware/loggerMiddleware";
 // Get all notes
 const getNotes = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -45,7 +45,7 @@ const getNotesByCategoryController = (req, res, next) => __awaiter(void 0, void 
     try {
         const { categoryId } = req.params;
         // Validate categoryId format
-        if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+        if (categoryId.match(/^[0-9a-fA-F]{24}$/)) {
             res.status(400).json({ message: "Invalid category ID format" });
             return;
         }
@@ -60,7 +60,7 @@ exports.getNotesByCategoryController = getNotesByCategoryController;
 // Create a new note
 const createNote = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        (0, loggerMiddleware_1.loggerMiddleware)(req, res, next);
+        // loggerMiddleware(req, res, next);
         // Validate request body using Joi
         const { error } = (0, noteValidation_1.validateNoteInput)(req.body);
         if (error) {
@@ -68,7 +68,7 @@ const createNote = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             return;
         }
         // Validate data structure using custom validation
-        (0, validateMiddleware_1.validateMiddleware)(req.body);
+        // validateMiddleware(req.body);
         // Extract fields correctly
         const { title, content, category } = req.body;
         // Create the new note
@@ -83,7 +83,7 @@ exports.createNote = createNote;
 // Update an existing note
 const updateNote = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        (0, loggerMiddleware_1.loggerMiddleware)(req, res, next);
+        // loggerMiddleware(req, res, next);
         // Validate request body using Joi
         const { error } = (0, noteValidation_1.validateNoteInput)(req.body);
         if (error) {
@@ -91,7 +91,7 @@ const updateNote = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             return;
         }
         // Validate data structure using custom validation
-        (0, validateMiddleware_1.validateMiddleware)(req.body);
+        // validateMiddleware(req.body);
         // Extract fields correctly
         const { title, content, category } = req.body;
         // Update note
@@ -110,7 +110,7 @@ exports.updateNote = updateNote;
 // Delete a note
 const deleteNote = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        (0, loggerMiddleware_1.loggerMiddleware)(req, res, next);
+        // loggerMiddleware(req, res, next);
         const deletedNote = yield (0, noteService_1.deleteNoteById)(req.params.id);
         if (!deletedNote) {
             res.status(404).json({ message: "Note not found" });
