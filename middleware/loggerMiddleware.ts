@@ -5,6 +5,6 @@ export const loggerMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 };

@@ -7,9 +7,9 @@ import {
   getNotesByCategory,
   deleteNoteById,
 } from "../services/noteService";
-import { validateMiddleware } from "../middleware/validateMiddleware";
+// import { validateMiddleware } from "../middleware/validateMiddleware";
 import { validateNoteInput } from "../validations/noteValidation";
-import { loggerMiddleware } from "../middleware/loggerMiddleware";
+// import { loggerMiddleware } from "../middleware/loggerMiddleware";
 
 // Get all notes
 export const getNotes = async (
@@ -53,7 +53,7 @@ export const getNotesByCategoryController = async (
     const { categoryId } = req.params;
 
     // Validate categoryId format
-    if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+    if (categoryId.match(/^[0-9a-fA-F]{24}$/)) {
       res.status(400).json({ message: "Invalid category ID format" });
       return;
     }
@@ -72,7 +72,7 @@ export const createNote = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    loggerMiddleware(req, res, next);
+    // loggerMiddleware(req, res, next);
 
     // Validate request body using Joi
     const { error } = validateNoteInput(req.body);
@@ -82,7 +82,7 @@ export const createNote = async (
     }
 
     // Validate data structure using custom validation
-    validateMiddleware(req.body);
+    // validateMiddleware(req.body);
 
     // Extract fields correctly
     const { title, content, category } = req.body;
@@ -102,7 +102,7 @@ export const updateNote = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    loggerMiddleware(req, res, next);
+    // loggerMiddleware(req, res, next);
 
     // Validate request body using Joi
     const { error } = validateNoteInput(req.body);
@@ -112,7 +112,7 @@ export const updateNote = async (
     }
 
     // Validate data structure using custom validation
-    validateMiddleware(req.body);
+    // validateMiddleware(req.body);
 
     // Extract fields correctly
     const { title, content, category } = req.body;
@@ -142,7 +142,7 @@ export const deleteNote = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    loggerMiddleware(req, res, next);
+    // loggerMiddleware(req, res, next);
 
     const deletedNote = await deleteNoteById(req.params.id);
     if (!deletedNote) {
