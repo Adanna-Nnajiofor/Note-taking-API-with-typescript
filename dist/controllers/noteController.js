@@ -45,7 +45,7 @@ const getNotesByCategoryController = (req, res, next) => __awaiter(void 0, void 
     try {
         const { categoryId } = req.params;
         // Validate categoryId format
-        if (categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+        if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
             res.status(400).json({ message: "Invalid category ID format" });
             return;
         }

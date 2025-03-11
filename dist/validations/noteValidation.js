@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateNoteInput = void 0;
 const joi_1 = __importDefault(require("joi"));
 const noteValidationSchema = joi_1.default.object({
-    title: joi_1.default.string().min(3).max(100).required(),
-    content: joi_1.default.string().min(5).max(1000).required(),
+    title: joi_1.default.string().required(),
+    content: joi_1.default.string().required(),
     //   category: Joi.string().required(),
     category: joi_1.default.string()
         .regex(/^[0-9a-fA-F]{24}$/)
