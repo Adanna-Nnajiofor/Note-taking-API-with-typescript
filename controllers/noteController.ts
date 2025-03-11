@@ -7,7 +7,7 @@ import {
   getNotesByCategory,
   deleteNoteById,
 } from "../services/noteService";
-// import { validateMiddleware } from "../middleware/validateMiddleware";
+import { validateMiddleware } from "../middleware/validateMiddleware";
 import { validateNoteInput } from "../validations/noteValidation";
 // import { loggerMiddleware } from "../middleware/loggerMiddleware";
 
@@ -82,7 +82,7 @@ export const createNote = async (
     }
 
     // Validate data structure using custom validation
-    // validateMiddleware(req.body);
+    validateMiddleware(req.body);
 
     // Extract fields correctly
     const { title, content, category } = req.body;
@@ -112,7 +112,7 @@ export const updateNote = async (
     }
 
     // Validate data structure using custom validation
-    // validateMiddleware(req.body);
+    validateMiddleware(req.body);
 
     // Extract fields correctly
     const { title, content, category } = req.body;

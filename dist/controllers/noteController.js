@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteNote = exports.updateNote = exports.createNote = exports.getNotesByCategoryController = exports.getNote = exports.getNotes = void 0;
 const noteService_1 = require("../services/noteService");
-// import { validateMiddleware } from "../middleware/validateMiddleware";
+const validateMiddleware_1 = require("../middleware/validateMiddleware");
 const noteValidation_1 = require("../validations/noteValidation");
 // import { loggerMiddleware } from "../middleware/loggerMiddleware";
 // Get all notes
@@ -68,7 +68,7 @@ const createNote = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             return;
         }
         // Validate data structure using custom validation
-        // validateMiddleware(req.body);
+        (0, validateMiddleware_1.validateMiddleware)(req.body);
         // Extract fields correctly
         const { title, content, category } = req.body;
         // Create the new note
@@ -91,7 +91,7 @@ const updateNote = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             return;
         }
         // Validate data structure using custom validation
-        // validateMiddleware(req.body);
+        (0, validateMiddleware_1.validateMiddleware)(req.body);
         // Extract fields correctly
         const { title, content, category } = req.body;
         // Update note

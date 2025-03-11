@@ -7,19 +7,14 @@ import {
   deleteNote,
   getNotesByCategoryController,
 } from "../controllers/noteController";
-import { validateMiddleware } from "../middleware/validateMiddleware";
 
 const router = express.Router();
 
-router.get("/", validateMiddleware, getNotes);
-router.get(
-  "/category/:categoryId",
-  validateMiddleware,
-  getNotesByCategoryController
-);
-router.get("/:id", validateMiddleware, getNote);
-router.post("/", validateMiddleware, createNote);
-router.put("/:id", validateMiddleware, updateNote);
-router.delete("/:id", validateMiddleware, deleteNote);
+router.get("/", getNotes);
+router.get("/category/:categoryId", getNotesByCategoryController);
+router.get("/:id", getNote);
+router.post("/", createNote);
+router.put("/:id", updateNote);
+router.delete("/:id", deleteNote);
 
 export default router;
