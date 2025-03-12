@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import Note from "../models/Note";
 
 export const getAllNotes = async () => {
-  const notes = await Note.find();
+  const notes = await Note.find().populate("category"); // Ensure category details are populated
   return notes.length > 0 ? notes : [];
 };
 
@@ -11,17 +11,19 @@ export const getNoteById = async (id: string) => {
     console.error("❌ Invalid ObjectId:", id);
     return null;
   }
-  return await Note.findById(id);
+  return await Note.findById(id).populate("category"); // Populate category data
 };
 
-export const getNotesByCategory = async (categoryId: string) => {
+export const getNotesByCategory = async (category: string | { id: string }) => {
   try {
+    const categoryId = typeof category === "string" ? category : category.id;
+
     if (!mongoose.Types.ObjectId.isValid(categoryId)) {
       console.error("❌ Invalid category ID:", categoryId);
       return [];
     }
 
-    return await Note.find({ category: categoryId });
+    return await Note.find({ category: categoryId }).populate("category");
   } catch (error) {
     console.error("❌ Error fetching notes by category:", error);
     throw error;
@@ -31,9 +33,11 @@ export const getNotesByCategory = async (categoryId: string) => {
 export const createNewNote = async (
   title: string,
   content: string,
-  categoryId: string
+  category: string | { id: string }
 ) => {
   try {
+    const categoryId = typeof category === "string" ? category : category.id;
+
     if (!mongoose.Types.ObjectId.isValid(categoryId)) {
       console.error("❌ Invalid category ID:", categoryId);
       return null;
@@ -51,7 +55,7 @@ export const updateExistingNote = async (
   id: string,
   title: string,
   content: string,
-  categoryId: string
+  category: string | { id: string }
 ) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -59,11 +63,18 @@ export const updateExistingNote = async (
       return null;
     }
 
+    const categoryId = typeof category === "string" ? category : category.id;
+
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      console.error("❌ Invalid category ID:", categoryId);
+      return null;
+    }
+
     const updatedNote = await Note.findByIdAndUpdate(
       id,
       { title, content, category: categoryId },
       { new: true, runValidators: true }
-    );
+    ).populate("category");
 
     if (!updatedNote) {
       console.error("❌ Note not found for ID:", id);

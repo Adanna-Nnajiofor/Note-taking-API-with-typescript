@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
 import {
   getAllNotes,
   getNoteById,
@@ -53,7 +54,7 @@ export const getNotesByCategoryController = async (
     const { categoryId } = req.params;
 
     // Validate categoryId format
-    if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
       res.status(400).json({ message: "Invalid category ID format" });
       return;
     }
@@ -87,8 +88,16 @@ export const createNote = async (
     // Extract fields correctly
     const { title, content, category } = req.body;
 
+    // Ensure category is an ObjectId if it's valid
+    const categoryValue = mongoose.isValidObjectId(category) ? category : null;
+
+    if (!categoryValue) {
+      res.status(400).json({ message: "Invalid category ID format" });
+      return;
+    }
+
     // Create the new note
-    const newNote = await createNewNote(title, content, category);
+    const newNote = await createNewNote(title, content, categoryValue);
     res.status(201).json(newNote);
   } catch (error) {
     next(error);
@@ -117,12 +126,20 @@ export const updateNote = async (
     // Extract fields correctly
     const { title, content, category } = req.body;
 
+    // Ensure category is an ObjectId if it's valid
+    const categoryValue = mongoose.isValidObjectId(category) ? category : null;
+
+    if (!categoryValue) {
+      res.status(400).json({ message: "Invalid category ID format" });
+      return;
+    }
+
     // Update note
     const updatedNote = await updateExistingNote(
       req.params.id,
       title,
       content,
-      category
+      categoryValue
     );
 
     if (!updatedNote) {

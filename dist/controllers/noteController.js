@@ -8,8 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteNote = exports.updateNote = exports.createNote = exports.getNotesByCategoryController = exports.getNote = exports.getNotes = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
 const noteService_1 = require("../services/noteService");
 const validateMiddleware_1 = require("../middleware/validateMiddleware");
 const noteValidation_1 = require("../validations/noteValidation");
@@ -45,7 +49,7 @@ const getNotesByCategoryController = (req, res, next) => __awaiter(void 0, void 
     try {
         const { categoryId } = req.params;
         // Validate categoryId format
-        if (!categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+        if (!mongoose_1.default.Types.ObjectId.isValid(categoryId)) {
             res.status(400).json({ message: "Invalid category ID format" });
             return;
         }
@@ -71,8 +75,14 @@ const createNote = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         (0, validateMiddleware_1.validateMiddleware)(req.body);
         // Extract fields correctly
         const { title, content, category } = req.body;
+        // Ensure category is an ObjectId if it's valid
+        const categoryValue = mongoose_1.default.isValidObjectId(category) ? category : null;
+        if (!categoryValue) {
+            res.status(400).json({ message: "Invalid category ID format" });
+            return;
+        }
         // Create the new note
-        const newNote = yield (0, noteService_1.createNewNote)(title, content, category);
+        const newNote = yield (0, noteService_1.createNewNote)(title, content, categoryValue);
         res.status(201).json(newNote);
     }
     catch (error) {
@@ -94,8 +104,14 @@ const updateNote = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         (0, validateMiddleware_1.validateMiddleware)(req.body);
         // Extract fields correctly
         const { title, content, category } = req.body;
+        // Ensure category is an ObjectId if it's valid
+        const categoryValue = mongoose_1.default.isValidObjectId(category) ? category : null;
+        if (!categoryValue) {
+            res.status(400).json({ message: "Invalid category ID format" });
+            return;
+        }
         // Update note
-        const updatedNote = yield (0, noteService_1.updateExistingNote)(req.params.id, title, content, category);
+        const updatedNote = yield (0, noteService_1.updateExistingNote)(req.params.id, title, content, categoryValue);
         if (!updatedNote) {
             res.status(404).json({ message: "Note not found" });
             return;

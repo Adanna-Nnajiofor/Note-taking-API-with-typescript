@@ -10,9 +10,13 @@ function validateMiddleware(note) {
         throw new Error("Invalid content: Content must be a string.");
     }
     if (!note.category ||
-        (!(note.category instanceof mongoose_1.Types.ObjectId) &&
-            (typeof note.category !== "string" ||
-                !mongoose_1.Types.ObjectId.isValid(note.category)))) {
-        throw new Error("Invalid category: Must be a valid ObjectId.");
+        !((note.category instanceof mongoose_1.Types.ObjectId || // Case 1: category is a valid ObjectId
+            (typeof note.category === "string" &&
+                mongoose_1.Types.ObjectId.isValid(note.category)) || // Case 2: category is a valid string ObjectId
+            (typeof note.category === "object" &&
+                "id" in note.category &&
+                mongoose_1.Types.ObjectId.isValid(note.category.id))) // Case 3: category is an object with a valid `id`
+        )) {
+        throw new Error("Invalid category: Must be a valid ObjectId, string, or Category object.");
     }
 }

@@ -5,7 +5,7 @@ export interface Note extends Document {
   _id: Types.ObjectId;
   title: string;
   content: string;
-  category: Types.ObjectId;
+  category: string | Category;
   createdAt: Date;
   updatedAt: Date;
 }
