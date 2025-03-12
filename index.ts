@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
 import noteRoutes from "./routes/noteRoutes";
+import categoryRoutes from "./routes/categoryRoutes";
 import { errorHandler } from "./middleware/errorMiddleware";
 import { loggerMiddleware } from "./middleware/loggerMiddleware";
 
@@ -17,6 +18,7 @@ app.use(loggerMiddleware);
 
 // Routes
 app.use("/api/notes", noteRoutes);
+app.use("/api/categories", categoryRoutes);
 
 // Connect to MongoDB
 const PORT = process.env.PORT || 5000;

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import Note from "../models/Note";
 
 export const getAllNotes = async () => {
-  const notes = await Note.find().populate("category"); // Ensure category details are populated
+  const notes = await Note.find().populate("category");
   return notes.length > 0 ? notes : [];
 };
 
@@ -11,7 +11,7 @@ export const getNoteById = async (id: string) => {
     console.error("❌ Invalid ObjectId:", id);
     return null;
   }
-  return await Note.findById(id).populate("category"); // Populate category data
+  return await Note.findById(id).populate("category");
 };
 
 export const getNotesByCategory = async (category: string | { id: string }) => {
