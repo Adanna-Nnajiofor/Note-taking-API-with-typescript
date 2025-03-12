@@ -43,21 +43,29 @@ const noteValidationSchema = joi_1.default.object({
     title: joi_1.default.string().required(),
     content: joi_1.default.string().required(),
     category: joi_1.default.alternatives()
-        .try(joi_1.default.string().regex(/^[0-9a-fA-F]{24}$/), // Valid ObjectId as a string
+        .try(
+    // ✅ Case 1: Valid ObjectId as a string
+    joi_1.default.string().regex(/^[0-9a-fA-F]{24}$/), 
+    // ✅ Case 2: Valid Mongoose ObjectId instance
     joi_1.default.custom((value, helpers) => {
         if (value instanceof mongoose_1.Types.ObjectId)
-            return value; // Case 1: Mongoose ObjectId instance
+            return value;
         if (typeof value === "string" && mongoose_1.default.isValidObjectId(value))
-            return value; // Case 2: Valid string ObjectId
+            return value;
         if (typeof value === "object" &&
             value !== null &&
             "_id" in value &&
             mongoose_1.default.isValidObjectId(value._id)) {
-            return value; // Case 3: Object containing a valid `_id`
+            return value;
         }
         return helpers.error("any.invalid", {
             message: "Invalid category: Must be a valid ObjectId, string, or object with _id",
         });
+    }), 
+    // ✅ Case 3: Fully embedded category object
+    joi_1.default.object({
+        name: joi_1.default.string().required(),
+        description: joi_1.default.string().required(),
     }))
         .required(),
 });
