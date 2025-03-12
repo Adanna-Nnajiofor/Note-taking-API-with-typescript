@@ -10,7 +10,6 @@ import {
 } from "../services/noteService";
 import { validateMiddleware } from "../middleware/validateMiddleware";
 import { validateNoteInput } from "../validations/noteValidation";
-// import { loggerMiddleware } from "../middleware/loggerMiddleware";
 
 // Get all notes
 export const getNotes = async (
@@ -53,7 +52,6 @@ export const getNotesByCategoryController = async (
   try {
     const { categoryId } = req.params;
 
-    // Validate categoryId format
     if (!mongoose.Types.ObjectId.isValid(categoryId)) {
       res.status(400).json({ message: "Invalid category ID format" });
       return;
@@ -73,30 +71,32 @@ export const createNote = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // loggerMiddleware(req, res, next);
-
-    // Validate request body using Joi
     const { error } = validateNoteInput(req.body);
     if (error) {
       res.status(400).json({ message: error.details[0].message });
       return;
     }
 
-    // Validate data structure using custom validation
     validateMiddleware(req.body);
 
-    // Extract fields correctly
     const { title, content, category } = req.body;
+    let categoryValue:
+      | string
+      | { id?: string; name: string; description: string } = category;
 
-    // Ensure category is an ObjectId if it's valid
-    const categoryValue = mongoose.isValidObjectId(category) ? category : null;
-
-    if (!categoryValue) {
-      res.status(400).json({ message: "Invalid category ID format" });
+    if (typeof category === "string" && mongoose.isValidObjectId(category)) {
+      categoryValue = category;
+    } else if (
+      typeof category === "object" &&
+      category.name &&
+      category.description
+    ) {
+      categoryValue = category;
+    } else {
+      res.status(400).json({ message: "Invalid category format" });
       return;
     }
 
-    // Create the new note
     const newNote = await createNewNote(title, content, categoryValue);
     res.status(201).json(newNote);
   } catch (error) {
@@ -111,30 +111,32 @@ export const updateNote = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // loggerMiddleware(req, res, next);
-
-    // Validate request body using Joi
     const { error } = validateNoteInput(req.body);
     if (error) {
       res.status(400).json({ message: error.details[0].message });
       return;
     }
 
-    // Validate data structure using custom validation
     validateMiddleware(req.body);
 
-    // Extract fields correctly
     const { title, content, category } = req.body;
+    let categoryValue:
+      | string
+      | { id?: string; name: string; description: string } = category;
 
-    // Ensure category is an ObjectId if it's valid
-    const categoryValue = mongoose.isValidObjectId(category) ? category : null;
-
-    if (!categoryValue) {
-      res.status(400).json({ message: "Invalid category ID format" });
+    if (typeof category === "string" && mongoose.isValidObjectId(category)) {
+      categoryValue = category;
+    } else if (
+      typeof category === "object" &&
+      category.name &&
+      category.description
+    ) {
+      categoryValue = category;
+    } else {
+      res.status(400).json({ message: "Invalid category format" });
       return;
     }
 
-    // Update note
     const updatedNote = await updateExistingNote(
       req.params.id,
       title,
@@ -159,8 +161,6 @@ export const deleteNote = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // loggerMiddleware(req, res, next);
-
     const deletedNote = await deleteNoteById(req.params.id);
     if (!deletedNote) {
       res.status(404).json({ message: "Note not found" });

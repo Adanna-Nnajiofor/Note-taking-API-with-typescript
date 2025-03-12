@@ -14,7 +14,7 @@ const noteSchema = new Schema<Note>(
   {
     title: { type: String, required: true },
     content: { type: String, required: true },
-    category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+    category: { type: Schema.Types.Mixed, ref: "Category", required: true },
   },
   { timestamps: true }
 );

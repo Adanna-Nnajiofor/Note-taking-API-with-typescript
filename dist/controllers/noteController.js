@@ -17,7 +17,6 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const noteService_1 = require("../services/noteService");
 const validateMiddleware_1 = require("../middleware/validateMiddleware");
 const noteValidation_1 = require("../validations/noteValidation");
-// import { loggerMiddleware } from "../middleware/loggerMiddleware";
 // Get all notes
 const getNotes = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -48,7 +47,6 @@ exports.getNote = getNote;
 const getNotesByCategoryController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { categoryId } = req.params;
-        // Validate categoryId format
         if (!mongoose_1.default.Types.ObjectId.isValid(categoryId)) {
             res.status(400).json({ message: "Invalid category ID format" });
             return;
@@ -64,24 +62,26 @@ exports.getNotesByCategoryController = getNotesByCategoryController;
 // Create a new note
 const createNote = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // loggerMiddleware(req, res, next);
-        // Validate request body using Joi
         const { error } = (0, noteValidation_1.validateNoteInput)(req.body);
         if (error) {
             res.status(400).json({ message: error.details[0].message });
             return;
         }
-        // Validate data structure using custom validation
         (0, validateMiddleware_1.validateMiddleware)(req.body);
-        // Extract fields correctly
         const { title, content, category } = req.body;
-        // Ensure category is an ObjectId if it's valid
-        const categoryValue = mongoose_1.default.isValidObjectId(category) ? category : null;
-        if (!categoryValue) {
-            res.status(400).json({ message: "Invalid category ID format" });
+        let categoryValue = category;
+        if (typeof category === "string" && mongoose_1.default.isValidObjectId(category)) {
+            categoryValue = category;
+        }
+        else if (typeof category === "object" &&
+            category.name &&
+            category.description) {
+            categoryValue = category;
+        }
+        else {
+            res.status(400).json({ message: "Invalid category format" });
             return;
         }
-        // Create the new note
         const newNote = yield (0, noteService_1.createNewNote)(title, content, categoryValue);
         res.status(201).json(newNote);
     }
@@ -93,24 +93,26 @@ exports.createNote = createNote;
 // Update an existing note
 const updateNote = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // loggerMiddleware(req, res, next);
-        // Validate request body using Joi
         const { error } = (0, noteValidation_1.validateNoteInput)(req.body);
         if (error) {
             res.status(400).json({ message: error.details[0].message });
             return;
         }
-        // Validate data structure using custom validation
         (0, validateMiddleware_1.validateMiddleware)(req.body);
-        // Extract fields correctly
         const { title, content, category } = req.body;
-        // Ensure category is an ObjectId if it's valid
-        const categoryValue = mongoose_1.default.isValidObjectId(category) ? category : null;
-        if (!categoryValue) {
-            res.status(400).json({ message: "Invalid category ID format" });
+        let categoryValue = category;
+        if (typeof category === "string" && mongoose_1.default.isValidObjectId(category)) {
+            categoryValue = category;
+        }
+        else if (typeof category === "object" &&
+            category.name &&
+            category.description) {
+            categoryValue = category;
+        }
+        else {
+            res.status(400).json({ message: "Invalid category format" });
             return;
         }
-        // Update note
         const updatedNote = yield (0, noteService_1.updateExistingNote)(req.params.id, title, content, categoryValue);
         if (!updatedNote) {
             res.status(404).json({ message: "Note not found" });
@@ -126,7 +128,6 @@ exports.updateNote = updateNote;
 // Delete a note
 const deleteNote = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // loggerMiddleware(req, res, next);
         const deletedNote = yield (0, noteService_1.deleteNoteById)(req.params.id);
         if (!deletedNote) {
             res.status(404).json({ message: "Note not found" });

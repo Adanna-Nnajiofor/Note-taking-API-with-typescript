@@ -15,15 +15,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const Category_1 = require("../models/Category");
 const router = express_1.default.Router();
-// 📌 Create a New Category
+// 📌 Create a New Category (Supports Embedded & Reference)
 router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name } = req.body;
-        if (!name) {
-            res.status(400).json({ success: false, message: "Name is required" });
+        const { name, description } = req.body;
+        if (!name || !description) {
+            res
+                .status(400)
+                .json({ success: false, message: "Name and description are required" });
             return;
         }
-        const category = new Category_1.Category({ name });
+        const category = new Category_1.Category({ name, description });
         yield category.save();
         res.status(201).json({ success: true, data: category });
     }
@@ -58,11 +60,20 @@ router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(500).json({ success: false, message: err.message });
     }
 }));
-// 📌 Update a Category by ID
+// 📌 Update a Category by ID (Supports Partial Updates)
 router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name } = req.body;
-        const category = yield Category_1.Category.findByIdAndUpdate(req.params.id, { name }, { new: true, runValidators: true });
+        const { name, description } = req.body;
+        if (!name && !description) {
+            res.status(400).json({ success: false, message: "At least one field (name or description) is required" });
+            return;
+        }
+        const updateData = {};
+        if (name)
+            updateData.name = name;
+        if (description)
+            updateData.description = description;
+        const category = yield Category_1.Category.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true, runValidators: true });
         if (!category) {
             res.status(404).json({ success: false, message: "Category not found" });
             return;

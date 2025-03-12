@@ -16,7 +16,7 @@ exports.deleteNoteById = exports.updateExistingNote = exports.createNewNote = ex
 const mongoose_1 = __importDefault(require("mongoose"));
 const Note_1 = __importDefault(require("../models/Note"));
 const getAllNotes = () => __awaiter(void 0, void 0, void 0, function* () {
-    const notes = yield Note_1.default.find().populate("category"); // Ensure category details are populated
+    const notes = yield Note_1.default.find().populate("category");
     return notes.length > 0 ? notes : [];
 });
 exports.getAllNotes = getAllNotes;
@@ -25,17 +25,22 @@ const getNoteById = (id) => __awaiter(void 0, void 0, void 0, function* () {
         console.error("❌ Invalid ObjectId:", id);
         return null;
     }
-    return yield Note_1.default.findById(id).populate("category"); // Populate category data
+    return yield Note_1.default.findById(id).populate("category");
 });
 exports.getNoteById = getNoteById;
 const getNotesByCategory = (category) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const categoryId = typeof category === "string" ? category : category.id;
-        if (!mongoose_1.default.Types.ObjectId.isValid(categoryId)) {
-            console.error("❌ Invalid category ID:", categoryId);
-            return [];
+        // ✅ Check if category is an embedded object with 'name'
+        if (typeof category === "object" && "name" in category) {
+            return yield Note_1.default.find({ "category.name": category.name });
         }
-        return yield Note_1.default.find({ category: categoryId }).populate("category");
+        // ✅ If category is a valid ObjectId, search directly
+        if (typeof category === "string" &&
+            mongoose_1.default.Types.ObjectId.isValid(category)) {
+            return yield Note_1.default.find({ category }).populate("category");
+        }
+        console.error("❌ Invalid category:", category);
+        return [];
     }
     catch (error) {
         console.error("❌ Error fetching notes by category:", error);
@@ -45,12 +50,21 @@ const getNotesByCategory = (category) => __awaiter(void 0, void 0, void 0, funct
 exports.getNotesByCategory = getNotesByCategory;
 const createNewNote = (title, content, category) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const categoryId = typeof category === "string" ? category : category.id;
-        if (!mongoose_1.default.Types.ObjectId.isValid(categoryId)) {
-            console.error("❌ Invalid category ID:", categoryId);
+        let categoryData;
+        if (typeof category === "string" &&
+            mongoose_1.default.Types.ObjectId.isValid(category)) {
+            categoryData = category;
+        }
+        else if (typeof category === "object" &&
+            "name" in category &&
+            "description" in category) {
+            categoryData = category;
+        }
+        else {
+            console.error("❌ Invalid category:", category);
             return null;
         }
-        const newNote = new Note_1.default({ title, content, category: categoryId });
+        const newNote = new Note_1.default({ title, content, category: categoryData });
         return yield newNote.save();
     }
     catch (error) {
@@ -65,12 +79,21 @@ const updateExistingNote = (id, title, content, category) => __awaiter(void 0, v
             console.error("❌ Invalid ObjectId:", id);
             return null;
         }
-        const categoryId = typeof category === "string" ? category : category.id;
-        if (!mongoose_1.default.Types.ObjectId.isValid(categoryId)) {
-            console.error("❌ Invalid category ID:", categoryId);
+        let categoryData;
+        if (typeof category === "string" &&
+            mongoose_1.default.Types.ObjectId.isValid(category)) {
+            categoryData = category;
+        }
+        else if (typeof category === "object" &&
+            "name" in category &&
+            "description" in category) {
+            categoryData = category;
+        }
+        else {
+            console.error("❌ Invalid category:", category);
             return null;
         }
-        const updatedNote = yield Note_1.default.findByIdAndUpdate(id, { title, content, category: categoryId }, { new: true, runValidators: true }).populate("category");
+        const updatedNote = yield Note_1.default.findByIdAndUpdate(id, { title, content, category: categoryData }, { new: true, runValidators: true }).populate("category");
         if (!updatedNote) {
             console.error("❌ Note not found for ID:", id);
         }
