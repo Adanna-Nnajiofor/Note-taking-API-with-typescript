@@ -5,16 +5,15 @@ import {
   createNote,
   updateNote,
   deleteNote,
-  getNotesByCategoryController,
 } from "../controllers/noteController";
+import { validateNote } from "../middleware/noteValidationMiddleware"; // ✅ Import validation middleware
 
 const router = express.Router();
 
 router.get("/", getNotes);
-router.get("/category/:categoryId", getNotesByCategoryController);
 router.get("/:id", getNote);
-router.post("/", createNote);
-router.put("/:id", updateNote);
-router.delete("/:id", deleteNote);
+router.post("/", validateNote, createNote); // ✅ Validate before creating a note
+router.put("/:id", validateNote, updateNote); // ✅ Validate before updating a note
+router.delete("/:id", deleteNote); // No validation needed for DELETE
 
 export default router;

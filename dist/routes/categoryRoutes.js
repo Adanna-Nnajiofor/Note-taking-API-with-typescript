@@ -1,105 +1,17 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const Category_1 = require("../models/Category");
+const categoryController_1 = require("../controllers/categoryController");
+const categoryValidationMiddleware_1 = require("../middleware/categoryValidationMiddleware");
+const idCategoryValidation_1 = require("../middleware/idCategoryValidation"); // New middleware for ID validation
 const router = express_1.default.Router();
-// 📌 Create a New Category (Supports Embedded & Reference)
-router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { name, description } = req.body;
-        if (!name || !description) {
-            res
-                .status(400)
-                .json({ success: false, message: "Name and description are required" });
-            return;
-        }
-        const category = new Category_1.Category({ name, description });
-        yield category.save();
-        res.status(201).json({ success: true, data: category });
-    }
-    catch (error) {
-        const err = error;
-        res.status(500).json({ success: false, message: err.message });
-    }
-}));
-// 📌 Get All Categories
-router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const categories = yield Category_1.Category.find();
-        res.status(200).json({ success: true, data: categories });
-    }
-    catch (error) {
-        const err = error;
-        res.status(500).json({ success: false, message: err.message });
-    }
-}));
-// 📌 Get a Single Category by ID
-router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const category = yield Category_1.Category.findById(req.params.id);
-        if (!category) {
-            res.status(404).json({ success: false, message: "Category not found" });
-            return;
-        }
-        res.status(200).json({ success: true, data: category });
-    }
-    catch (error) {
-        const err = error;
-        res.status(500).json({ success: false, message: err.message });
-    }
-}));
-// 📌 Update a Category by ID (Supports Partial Updates)
-router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { name, description } = req.body;
-        if (!name && !description) {
-            res.status(400).json({ success: false, message: "At least one field (name or description) is required" });
-            return;
-        }
-        const updateData = {};
-        if (name)
-            updateData.name = name;
-        if (description)
-            updateData.description = description;
-        const category = yield Category_1.Category.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true, runValidators: true });
-        if (!category) {
-            res.status(404).json({ success: false, message: "Category not found" });
-            return;
-        }
-        res.status(200).json({ success: true, data: category });
-    }
-    catch (error) {
-        const err = error;
-        res.status(500).json({ success: false, message: err.message });
-    }
-}));
-// 📌 Delete a Category by ID
-router.delete("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const category = yield Category_1.Category.findByIdAndDelete(req.params.id);
-        if (!category) {
-            res.status(404).json({ success: false, message: "Category not found" });
-            return;
-        }
-        res
-            .status(200)
-            .json({ success: true, message: "Category deleted successfully" });
-    }
-    catch (error) {
-        const err = error;
-        res.status(500).json({ success: false, message: err.message });
-    }
-}));
+// Category Routes
+router.post("/", categoryValidationMiddleware_1.validateCategory, categoryController_1.createCategory); // Validate category body before creation
+router.get("/", categoryController_1.getAllCategories);
+router.get("/:id", idCategoryValidation_1.validateIdParam, categoryController_1.getCategoryById); // Validate ID before fetching category
+router.put("/:id", idCategoryValidation_1.validateIdParam, categoryValidationMiddleware_1.validateCategory, categoryController_1.updateCategory); // Validate both ID and body
+router.delete("/:id", idCategoryValidation_1.validateIdParam, categoryController_1.deleteCategory); // Validate ID before deletion
 exports.default = router;

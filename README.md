@@ -2,7 +2,7 @@
 
 ## Overview
 
-This Note-Taking API is a backend service that allows users to create, read, update, and delete (CRUD) notes. The API is built using Node.js, Express, and MongoDB, and follows RESTful principles to ensure efficiency and scalability.
+This Note-Taking API is a backend service that allows users to create, read, update, and delete (CRUD) notes. The API is built using Node.js, Express, and MongoDB, following RESTful principles to ensure efficiency and scalability. It also includes category management for better organization of notes.
 
 ## Features
 
@@ -13,6 +13,7 @@ This Note-Taking API is a backend service that allows users to create, read, upd
 - Update an existing note
 - Delete a note
 - Manage categories (CRUD operations for categories)
+- Middleware for validation and logging
 
 ## Technologies Used
 
@@ -22,6 +23,7 @@ This Note-Taking API is a backend service that allows users to create, read, upd
 - **Mongoose** - ODM (Object Data Modeling) library for MongoDB
 - **TypeScript** - Typed superset of JavaScript for enhanced code quality
 - **Postman** - API testing tool
+- **Joi** - Data validation library for request validation
 
 ## Deployment
 
@@ -34,7 +36,7 @@ This API has been **deployed on Render** and is accessible at:
 ### 1. Setting Up the Project
 
 - Initialized a Node.js project using `npm init -y`
-- Installed required dependencies: `express`, `mongoose`, `dotenv`, `cors`, `body-parser`
+- Installed required dependencies: `express`, `mongoose`, `dotenv`, `cors`, `body-parser`, `joi`
 - Installed development dependencies: `typescript`, `ts-node`, `nodemon`, `@types/node`, `@types/express`
 - Configured TypeScript in `tsconfig.json`
 
@@ -42,7 +44,7 @@ This API has been **deployed on Render** and is accessible at:
 
 - Set up an Express server in `index.ts`
 - Connected to MongoDB using Mongoose
-- Implemented middleware for JSON parsing and CORS
+- Implemented middleware for JSON parsing, CORS, validation, and logging
 
 ### 3. Implementing Routes & Controllers
 
@@ -60,7 +62,12 @@ This API has been **deployed on Render** and is accessible at:
 - Implemented CRUD operations for categories
 - Categories accept either an **ObjectId** reference to the `Category` model or a normal object with `name` and `description`
 
-### 5. Testing with Postman
+### 5. Implementing Middleware
+
+- **Validation Middleware:** Ensures all requests contain the required fields before reaching the controllers (`noteValidationMiddleware.ts`)
+- **Logging Middleware:** Logs all incoming requests (`loggerMiddleware.ts`)
+
+### 6. Testing with Postman
 
 #### Notes Endpoints:
 
@@ -102,4 +109,4 @@ If you don't have a database, you can create a free one on [MongoDB Atlas](https
 
 ## Conclusion
 
-This Note-Taking API is a simple yet efficient backend system to manage notes and categories with CRUD operations. It follows best practices for RESTful API design and is built with scalability in mind. The addition of categories enhances organization and retrieval of notes, making the system more user-friendly and functional.
+This Note-Taking API is a simple yet efficient backend system to manage notes and categories with CRUD operations. It follows best practices for RESTful API design and is built with scalability in mind. The addition of validation middleware and logging ensures data integrity and better debugging, making the system more robust and user-friendly.

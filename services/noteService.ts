@@ -1,9 +1,6 @@
 import mongoose from "mongoose";
 import Note from "../models/Note";
 
-// Define a proper Category Type
-type CategoryType = string | { id?: string; name: string; description: string };
-
 export const getAllNotes = async () => {
   const notes = await Note.find().populate("category");
   return notes.length > 0 ? notes : [];
@@ -17,23 +14,13 @@ export const getNoteById = async (id: string) => {
   return await Note.findById(id).populate("category");
 };
 
-export const getNotesByCategory = async (category: CategoryType) => {
+export const getNotesByCategory = async (categoryId: string) => {
   try {
-    // ✅ Check if category is an embedded object with 'name'
-    if (typeof category === "object" && "name" in category) {
-      return await Note.find({ "category.name": category.name });
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      console.error("❌ Invalid category ID:", categoryId);
+      return [];
     }
-
-    // ✅ If category is a valid ObjectId, search directly
-    if (
-      typeof category === "string" &&
-      mongoose.Types.ObjectId.isValid(category)
-    ) {
-      return await Note.find({ category }).populate("category");
-    }
-
-    console.error("❌ Invalid category:", category);
-    return [];
+    return await Note.find({ category: categoryId }).populate("category");
   } catch (error) {
     console.error("❌ Error fetching notes by category:", error);
     throw error;
@@ -43,28 +30,15 @@ export const getNotesByCategory = async (category: CategoryType) => {
 export const createNewNote = async (
   title: string,
   content: string,
-  category: CategoryType
+  categoryId: string
 ) => {
   try {
-    let categoryData;
-
-    if (
-      typeof category === "string" &&
-      mongoose.Types.ObjectId.isValid(category)
-    ) {
-      categoryData = category;
-    } else if (
-      typeof category === "object" &&
-      "name" in category &&
-      "description" in category
-    ) {
-      categoryData = category;
-    } else {
-      console.error("❌ Invalid category:", category);
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      console.error("❌ Invalid category ID:", categoryId);
       return null;
     }
 
-    const newNote = new Note({ title, content, category: categoryData });
+    const newNote = new Note({ title, content, category: categoryId });
     return await newNote.save();
   } catch (error) {
     console.error("❌ Error creating new note:", error);
@@ -74,9 +48,9 @@ export const createNewNote = async (
 
 export const updateExistingNote = async (
   id: string,
-  title: string,
-  content: string,
-  category: CategoryType
+  title?: string,
+  content?: string,
+  categoryId?: string
 ) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -84,35 +58,18 @@ export const updateExistingNote = async (
       return null;
     }
 
-    let categoryData;
-
-    if (
-      typeof category === "string" &&
-      mongoose.Types.ObjectId.isValid(category)
-    ) {
-      categoryData = category;
-    } else if (
-      typeof category === "object" &&
-      "name" in category &&
-      "description" in category
-    ) {
-      categoryData = category;
-    } else {
-      console.error("❌ Invalid category:", category);
-      return null;
+    const updateData: Record<string, any> = {};
+    if (title) updateData.title = title;
+    if (content) updateData.content = content;
+    if (categoryId && mongoose.Types.ObjectId.isValid(categoryId)) {
+      updateData.category = categoryId;
     }
 
-    const updatedNote = await Note.findByIdAndUpdate(
+    return await Note.findByIdAndUpdate(
       id,
-      { title, content, category: categoryData },
+      { $set: updateData },
       { new: true, runValidators: true }
     ).populate("category");
-
-    if (!updatedNote) {
-      console.error("❌ Note not found for ID:", id);
-    }
-
-    return updatedNote;
   } catch (error) {
     console.error("❌ Error updating note:", error);
     throw error;

@@ -5,6 +5,8 @@ export const loggerMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.originalUrl}`);
+
   next();
 };

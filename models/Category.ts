@@ -11,4 +11,5 @@ const categorySchema = new Schema<Category>({
   description: { type: String, required: true },
 });
 
-export const Category = model<Category>("Category", categorySchema);
+const Category = model<Category>("Category", categorySchema);
+export default Category;

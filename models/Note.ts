@@ -14,21 +14,10 @@ const noteSchema = new Schema<Note>(
   {
     title: { type: String, required: true },
     content: { type: String, required: true },
-
-    // ✅ Category can be an ObjectId reference or an embedded object
     category: {
-      type: Schema.Types.Mixed,
+      type: Schema.Types.ObjectId,
+      ref: "Category",
       required: true,
-      validate: {
-        validator: (value: any) => {
-          return (
-            Types.ObjectId.isValid(value) ||
-            (typeof value === "object" && value.name && value.description)
-          );
-        },
-        message:
-          "Invalid category: Must be a valid ObjectId or an object with 'name' and 'description'.",
-      },
     },
   },
   { timestamps: true }
