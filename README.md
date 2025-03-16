@@ -88,11 +88,19 @@ This API has been **deployed on Render** and is accessible at:
 
 ## How to Start the Development Server
 
-1. Compile TypeScript files:
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/Adanna-Nnajiofor/Note-taking-API-with-typescript.git
+   ```
+2. Install dependencies:
+   ```sh
+   npm install
+   ```
+3. Compile TypeScript files:
    ```sh
    tsc
    ```
-2. Start the development server:
+4. Start the development server:
    ```sh
    node dist/index.js
    ```
