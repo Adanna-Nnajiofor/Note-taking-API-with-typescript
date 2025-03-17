@@ -7,15 +7,15 @@ import {
   deleteCategory,
 } from "../controllers/categoryController";
 import { validateCategory } from "../middleware/categoryValidationMiddleware";
-import { validateIdParam } from "../middleware/idCategoryValidation"; // New middleware for ID validation
+import { validateIdParam } from "../middleware/idCategoryValidation";
 
 const router = express.Router();
 
 // Category Routes
-router.post("/", validateCategory, createCategory); // Validate category body before creation
+router.post("/", validateCategory, createCategory);
 router.get("/", getAllCategories);
-router.get("/:id", validateIdParam, getCategoryById); // Validate ID before fetching category
-router.put("/:id", validateIdParam, validateCategory, updateCategory); // Validate both ID and body
-router.delete("/:id", validateIdParam, deleteCategory); // Validate ID before deletion
+router.get("/:id", validateIdParam, getCategoryById);
+router.put("/:id", validateIdParam, validateCategory, updateCategory);
+router.delete("/:id", validateIdParam, deleteCategory);
 
 export default router;

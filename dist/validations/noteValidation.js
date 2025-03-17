@@ -14,11 +14,14 @@ exports.noteValidationSchema = joi_1.default.object({
         "string.empty": "Content is required",
     }),
     category: joi_1.default.alternatives()
-        .try(categoryValidation_1.idParamSchema.extract("id"), // ✅ Use the category ID validation
-    categoryValidation_1.categoryValidationSchema // ✅ Use the full category object validation
+        .try(categoryValidation_1.idParamSchema.extract("id"), //  Use the category ID validation
+    categoryValidation_1.categoryValidationSchema //  Use the full category object validation
     )
         .required()
         .messages({
         "any.required": "Category is required",
+    }),
+    user: joi_1.default.string().required().messages({
+        "string.empty": "User ID is required",
     }),
 });

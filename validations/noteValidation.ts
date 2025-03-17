@@ -10,11 +10,14 @@ export const noteValidationSchema = Joi.object({
   }),
   category: Joi.alternatives()
     .try(
-      idParamSchema.extract("id"), // ✅ Use the category ID validation
-      categoryValidationSchema // ✅ Use the full category object validation
+      idParamSchema.extract("id"), //  Use the category ID validation
+      categoryValidationSchema //  Use the full category object validation
     )
     .required()
     .messages({
       "any.required": "Category is required",
     }),
+  user: Joi.string().required().messages({
+    "string.empty": "User ID is required",
+  }),
 });

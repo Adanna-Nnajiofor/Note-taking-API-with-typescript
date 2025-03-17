@@ -6,6 +6,7 @@ export interface Note extends Document {
   title: string;
   content: string;
   category: Types.ObjectId | Category;
+  user: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,6 +18,11 @@ const noteSchema = new Schema<Note>(
     category: {
       type: Schema.Types.ObjectId,
       ref: "Category",
+      required: true,
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
   },
