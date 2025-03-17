@@ -27,16 +27,21 @@ export const registerUser: RequestHandler = async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      res.status(400).json({ success: false, message: "User already exists" });
+      res.status(400).json({
+        success: false,
+        message: "User already exists. Please log in.",
+      });
       return;
     }
 
     const newUser: IUser = new User({ username, email, password });
     await newUser.save();
 
-    res
-      .status(201)
-      .json({ success: true, message: "User registered successfully" });
+    res.status(201).json({
+      success: true,
+      message:
+        "User registered successfully. Please login using your email and password to obtain a token.",
+    });
   } catch (error) {
     res
       .status(500)
@@ -52,10 +57,20 @@ export const loginUser: RequestHandler = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user || !(await user.comparePassword(password))) {
-      res
-        .status(401)
-        .json({ success: false, message: "Invalid email or password" });
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message:
+          "User not found. Please register first before attempting to log in.",
+      });
+      return;
+    }
+
+    if (!(await user.comparePassword(password))) {
+      res.status(401).json({
+        success: false,
+        message: "Invalid email or password. Please try again.",
+      });
       return;
     }
 
@@ -63,7 +78,9 @@ export const loginUser: RequestHandler = async (req, res) => {
       expiresIn: "1h",
     });
 
-    res.status(200).json({ success: true, token });
+    res
+      .status(200)
+      .json({ success: true, message: "Login successful.", token });
   } catch (error) {
     res.status(500).json({ success: false, message: "Login failed", error });
   }

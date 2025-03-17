@@ -99,6 +99,95 @@ This API has been **deployed on Render** and is accessible at:
 - **PUT** `/api/categories/:id` - Update a category (supports partial updates for `name` and `description`)
 - **DELETE** `/api/categories/:id` - Delete a category by ID
 
+## Testing the Note-Taking API on Postman
+
+### 1. Register a User
+
+- Open **Postman**.
+- Select **POST** request.
+- Enter the endpoint: `https://note-taking-api-with-typescript.onrender.com/api/auth/register`
+- Go to the **Body** tab, select **raw**, and set the format to **JSON**.
+- Add the following JSON:
+  ```json
+  {
+    "username": "testuser",
+    "email": "testuser@example.com",
+    "password": "password123"
+  }
+  ```
+- Click **Send**.
+- A successful response should return a message confirming registration.
+
+### 2. Login a User
+
+- Select **POST** request.
+- Enter the endpoint: `https://note-taking-api-with-typescript.onrender.com/api/auth/login`
+- Go to the **Body** tab, select **raw**, and set the format to **JSON**.
+- Add the following JSON:
+  ```json
+  {
+    "email": "testuser@example.com",
+    "password": "password123"
+  }
+  ```
+- Click **Send**.
+- A successful response returns a **JWT token**.
+- Copy the **token** for authorization in subsequent requests.
+
+### 3. Retrieve All Notes (Requires Authentication)
+
+- Select **GET** request.
+- Enter the endpoint: `https://note-taking-api-with-typescript.onrender.com/api/notes`
+- Go to the **Headers** tab and add:
+  - `Authorization`: `Bearer YOUR_JWT_TOKEN_HERE`
+- Click **Send**.
+- If successful, a list of notes will be returned.
+
+### 4. Create a New Note (Requires Authentication)
+
+- Select **POST** request.
+- Enter the endpoint: `https://note-taking-api-with-typescript.onrender.com/api/notes`
+- Go to the **Headers** tab and add:
+  - `Authorization`: `Bearer YOUR_JWT_TOKEN_HERE`
+- Go to the **Body** tab, select **raw**, and set the format to **JSON**.
+- Add the following JSON:
+  ```json
+  {
+    "title": "My First Note",
+    "content": "This is the content of my note.",
+    "categoryId": "category_id_here"
+  }
+  ```
+- Click **Send**.
+- If successful, the new note will be returned.
+
+### 5. Retrieve a Single Note by ID
+
+- Select **GET** request.
+- Enter the endpoint: `https://note-taking-api-with-typescript.onrender.com/api/notes/:id`
+- Replace `:id` with the actual note ID.
+- Add the authorization token in the **Headers**.
+- Click **Send**.
+- If successful, the requested note is returned.
+
+### 6. Update a Note
+
+- Select **PUT** request.
+- Enter the endpoint: `https://note-taking-api-with-typescript.onrender.com/api/notes/:id`
+- Replace `:id` with the note ID.
+- Add the authorization token in the **Headers**.
+- Go to the **Body** tab, select **raw**, and set the format to **JSON**.
+- Modify the note data and click **Send**.
+
+### 7. Delete a Note
+
+- Select **DELETE** request.
+- Enter the endpoint: `https://note-taking-api-with-typescript.onrender.com/api/notes/:id`
+- Replace `:id` with the note ID.
+- Add the authorization token in the **Headers**.
+- Click **Send**.
+- If successful, a confirmation message is returned.
+
 ## How to Start the Development Server
 
 1. Clone the repository:
