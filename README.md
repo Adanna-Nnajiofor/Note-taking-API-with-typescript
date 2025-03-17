@@ -2,10 +2,11 @@
 
 ## Overview
 
-This Note-Taking API is a backend service that allows users to create, read, update, and delete (CRUD) notes. The API is built using Node.js, Express, and MongoDB, following RESTful principles to ensure efficiency and scalability. It also includes category management for better organization of notes.
+This Note-Taking API is a backend service that allows users to create, read, update, and delete (CRUD) notes. The API is built using Node.js, Express, and MongoDB, following RESTful principles to ensure efficiency and scalability. It also includes user authentication and category management for better organization of notes.
 
 ## Features
 
+- User authentication (Register/Login)
 - Create a new note with a title, content, and category
 - Retrieve all notes
 - Retrieve a single note by ID
@@ -24,6 +25,9 @@ This Note-Taking API is a backend service that allows users to create, read, upd
 - **TypeScript** - Typed superset of JavaScript for enhanced code quality
 - **Postman** - API testing tool
 - **Joi** - Data validation library for request validation
+- **Bcrypt** - Password hashing for authentication
+- **jsonwebtoken** - JWT authentication for users
+- **Dotenv** - Environment variable management
 
 ## Deployment
 
@@ -36,7 +40,7 @@ This API has been **deployed on Render** and is accessible at:
 ### 1. Setting Up the Project
 
 - Initialized a Node.js project using `npm init -y`
-- Installed required dependencies: `express`, `mongoose`, `dotenv`, `cors`, `body-parser`, `joi`
+- Installed required dependencies: `express`, `mongoose`, `dotenv`, `cors`, `body-parser`, `joi`, `bcrypt`, `jsonwebtoken`
 - Installed development dependencies: `typescript`, `ts-node`, `nodemon`, `@types/node`, `@types/express`
 - Configured TypeScript in `tsconfig.json`
 
@@ -45,38 +49,47 @@ This API has been **deployed on Render** and is accessible at:
 - Set up an Express server in `index.ts`
 - Connected to MongoDB using Mongoose
 - Implemented middleware for JSON parsing, CORS, validation, and logging
+- Added authentication routes for user registration and login
 
 ### 3. Implementing Routes & Controllers
 
 - Created `routes/noteRoutes.ts` for handling note API endpoints
 - Created `routes/categoryRoutes.ts` for handling category API endpoints
+- Created `routes/authRoutes.ts` for user authentication
 - Implemented CRUD operations in `controllers/noteController.ts`
 - Defined the `Note` model using Mongoose in `models/Note.ts`
 - Defined the `Category` model in `models/Category.ts`
+- Defined the `User` model in `models/User.ts`
 
-### 4. Adding Category Support
+### 4. Adding Authentication
 
-- Updated the `Note` model to include a `categoryId` field
-- Modified the `createNote` and `updateNote` controllers to require `categoryId`
-- Added a new endpoint to retrieve notes by category
-- Implemented CRUD operations for categories
-- Categories accept either an **ObjectId** reference to the `Category` model or a normal object with `name` and `description`
+- Created `routes/authRoutes.ts` for handling authentication endpoints
+- Implemented `registerUser` and `loginUser` functions in `controllers/authController.ts`
+- Used **bcrypt** to hash passwords
+- Used **jsonwebtoken (JWT)** for authentication
+- Middleware to protect private routes
 
 ### 5. Implementing Middleware
 
 - **Validation Middleware:** Ensures all requests contain the required fields before reaching the controllers (`noteValidationMiddleware.ts`)
 - **Logging Middleware:** Logs all incoming requests (`loggerMiddleware.ts`)
+- **Error Handling Middleware:** Handles application-wide errors (`errorMiddleware.ts`)
 
 ### 6. Testing with Postman
 
-#### Notes Endpoints:
+#### Authentication Endpoints:
 
-- **GET** `/api/notes` - Retrieve all notes
-- **GET** `/api/notes/:id` - Retrieve a specific note
-- **GET** `/api/notes/category/:categoryId` - Retrieve notes by category
-- **POST** `/api/notes` - Create a new note (requires title, content, and categoryId in request body)
-- **PUT** `/api/notes/:id` - Update a note (requires title, content, and categoryId in request body)
-- **DELETE** `/api/notes/:id` - Delete a note
+- **POST** `/api/auth/register` - Register a new user
+- **POST** `/api/auth/login` - Login a user and receive a JWT token
+
+#### Notes Endpoints (Protected):
+
+- **GET** `/api/notes` - Retrieve all notes (Requires Authentication)
+- **GET** `/api/notes/:id` - Retrieve a specific note (Requires Authentication)
+- **GET** `/api/notes/category/:categoryId` - Retrieve notes by category (Requires Authentication)
+- **POST** `/api/notes` - Create a new note (Requires title, content, and categoryId in request body) (Requires Authentication)
+- **PUT** `/api/notes/:id` - Update a note (Requires title, content, and categoryId in request body) (Requires Authentication)
+- **DELETE** `/api/notes/:id` - Delete a note (Requires Authentication)
 
 #### Category Endpoints:
 
@@ -107,14 +120,23 @@ This API has been **deployed on Render** and is accessible at:
 
 ## Setting Up Environment Variables
 
-To run this project, you need a MongoDB database. Follow these steps:
+To run this project, you need a MongoDB database and a JWT secret. Follow these steps:
 
 1. **Create a `.env` file** in the root directory.
 2. **Copy the contents of `.env.example`** into `.env`.
 3. **Replace `<your-username>` and `<your-password>`** with valid MongoDB credentials.
+4. **Set a JWT secret key** for authentication.
+
+Example `.env` file:
+
+```env
+MONGO_URI=mongodb+srv://<your-username>:<your-password>@cluster.mongodb.net/
+JWT_SECRET=your_jwt_secret
+PORT=5000
+```
 
 If you don't have a database, you can create a free one on [MongoDB Atlas](https://www.mongodb.com/atlas).
 
 ## Conclusion
 
-This Note-Taking API is a simple yet efficient backend system to manage notes and categories with CRUD operations. It follows best practices for RESTful API design and is built with scalability in mind. The addition of validation middleware and logging ensures data integrity and better debugging, making the system more robust and user-friendly.
+This Note-Taking API is a simple yet efficient backend system to manage user authentication, notes, and categories with CRUD operations. It follows best practices for RESTful API design and is built with scalability in mind. The addition of authentication, validation middleware, and logging ensures data integrity and better debugging, making the system more robust and user-friendly.
