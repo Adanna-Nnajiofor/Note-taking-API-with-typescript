@@ -35,14 +35,18 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         }
         const existingUser = yield User_1.default.findOne({ email });
         if (existingUser) {
-            res.status(400).json({ success: false, message: "User already exists" });
+            res.status(400).json({
+                success: false,
+                message: "User already exists. Please log in.",
+            });
             return;
         }
         const newUser = new User_1.default({ username, email, password });
         yield newUser.save();
-        res
-            .status(201)
-            .json({ success: true, message: "User registered successfully" });
+        res.status(201).json({
+            success: true,
+            message: "User registered successfully. Please login using your email and password to obtain a token.",
+        });
     }
     catch (error) {
         res
@@ -58,16 +62,26 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
         const user = yield User_1.default.findOne({ email });
-        if (!user || !(yield user.comparePassword(password))) {
-            res
-                .status(401)
-                .json({ success: false, message: "Invalid email or password" });
+        if (!user) {
+            res.status(401).json({
+                success: false,
+                message: "User not found. Please register first before attempting to log in.",
+            });
+            return;
+        }
+        if (!(yield user.comparePassword(password))) {
+            res.status(401).json({
+                success: false,
+                message: "Invalid email or password. Please try again.",
+            });
             return;
         }
         const token = jsonwebtoken_1.default.sign({ userId: user._id }, JWT_SECRET, {
             expiresIn: "1h",
         });
-        res.status(200).json({ success: true, token });
+        res
+            .status(200)
+            .json({ success: true, message: "Login successful.", token });
     }
     catch (error) {
         res.status(500).json({ success: false, message: "Login failed", error });
