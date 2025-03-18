@@ -50,6 +50,7 @@ export const createNewNote = async (
       category: categoryId,
       user: userId,
     });
+
     return await newNote.save();
   } catch (error) {
     console.error(" Error creating new note:", error);
@@ -66,7 +67,7 @@ export const updateExistingNote = async (
 ) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      console.error(" Invalid ObjectId:", id);
+      console.error(`Invalid ObjectId for note: ${id}`);
       return null;
     }
 
@@ -77,21 +78,34 @@ export const updateExistingNote = async (
       updateData.category = categoryId;
     }
 
-    return await Note.findOneAndUpdate(
+    const updatedNote = await Note.findOneAndUpdate(
       { _id: id, user: userId },
       { $set: updateData },
       { new: true, runValidators: true }
     ).populate("category");
+
+    if (!updatedNote) {
+      console.error(`Note not found or user does not own it: ${id}`);
+    }
+
+    return updatedNote;
   } catch (error) {
-    console.error(" Error updating note:", error);
+    console.error(`Error updating note (ID: ${id}, User: ${userId}):`, error);
     throw error;
   }
 };
 
 export const deleteNoteById = async (id: string, userId: string) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    console.error(" Invalid ObjectId:", id);
+    console.error(`Invalid ObjectId for note: ${id}`);
     return null;
   }
-  return await Note.findOneAndDelete({ _id: id, user: userId });
+
+  const deletedNote = await Note.findOneAndDelete({ _id: id, user: userId });
+
+  if (!deletedNote) {
+    console.error(`Note not found or user does not own it: ${id}`);
+  }
+
+  return deletedNote;
 };

@@ -65,7 +65,7 @@ exports.createNewNote = createNewNote;
 const updateExistingNote = (id, userId, title, content, categoryId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
-            console.error(" Invalid ObjectId:", id);
+            console.error(`Invalid ObjectId for note: ${id}`);
             return null;
         }
         const updateData = {};
@@ -76,19 +76,27 @@ const updateExistingNote = (id, userId, title, content, categoryId) => __awaiter
         if (categoryId && mongoose_1.default.Types.ObjectId.isValid(categoryId)) {
             updateData.category = categoryId;
         }
-        return yield Note_1.default.findOneAndUpdate({ _id: id, user: userId }, { $set: updateData }, { new: true, runValidators: true }).populate("category");
+        const updatedNote = yield Note_1.default.findOneAndUpdate({ _id: id, user: userId }, { $set: updateData }, { new: true, runValidators: true }).populate("category");
+        if (!updatedNote) {
+            console.error(`Note not found or user does not own it: ${id}`);
+        }
+        return updatedNote;
     }
     catch (error) {
-        console.error(" Error updating note:", error);
+        console.error(`Error updating note (ID: ${id}, User: ${userId}):`, error);
         throw error;
     }
 });
 exports.updateExistingNote = updateExistingNote;
 const deleteNoteById = (id, userId) => __awaiter(void 0, void 0, void 0, function* () {
     if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
-        console.error(" Invalid ObjectId:", id);
+        console.error(`Invalid ObjectId for note: ${id}`);
         return null;
     }
-    return yield Note_1.default.findOneAndDelete({ _id: id, user: userId });
+    const deletedNote = yield Note_1.default.findOneAndDelete({ _id: id, user: userId });
+    if (!deletedNote) {
+        console.error(`Note not found or user does not own it: ${id}`);
+    }
+    return deletedNote;
 });
 exports.deleteNoteById = deleteNoteById;

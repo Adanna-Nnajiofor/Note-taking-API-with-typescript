@@ -1,11 +1,10 @@
 import { Schema, model, Document, Types } from "mongoose";
-import { Category } from "./Category";
 
 export interface Note extends Document {
   _id: Types.ObjectId;
   title: string;
   content: string;
-  category: Types.ObjectId | Category;
+  category: Types.ObjectId;
   user: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
