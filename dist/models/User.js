@@ -56,16 +56,28 @@ const UserSchema = new mongoose_1.Schema({
 UserSchema.pre("save", function (next) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!this.isModified("password"))
-            return next();
-        const salt = yield bcrypt_1.default.genSalt(10);
-        this.password = yield bcrypt_1.default.hash(this.password, salt);
-        next();
+            return next(); // Only hash if password is new or modified
+        try {
+            const salt = yield bcrypt_1.default.genSalt(10);
+            this.password = yield bcrypt_1.default.hash(this.password, salt);
+            next();
+        }
+        catch (error) {
+            console.error("❌ Password hashing error:", error);
+            next(error); // Ensure error is passed properly
+        }
     });
 });
 // Compare passwords
 UserSchema.methods.comparePassword = function (candidatePassword) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield bcrypt_1.default.compare(candidatePassword, this.password);
+        try {
+            return yield bcrypt_1.default.compare(candidatePassword, this.password);
+        }
+        catch (error) {
+            console.error("❌ Password comparison error:", error);
+            return false;
+        }
     });
 };
 exports.default = mongoose_1.default.model("User", UserSchema);

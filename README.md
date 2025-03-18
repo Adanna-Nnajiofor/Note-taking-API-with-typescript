@@ -204,7 +204,7 @@ This API has been **deployed on Render** and is accessible at:
    ```
 4. Start the development server:
    ```sh
-   node dist/index.js
+   npm start
    ```
 
 ## Setting Up Environment Variables

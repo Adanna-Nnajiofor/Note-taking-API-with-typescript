@@ -16,31 +16,51 @@ exports.authenticateUser = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = __importDefault(require("../models/User"));
 const JWT_SECRET = process.env.JWT_SECRET;
+// Ensure JWT_SECRET exists before starting the server
+if (!JWT_SECRET) {
+    console.error(" Missing JWT_SECRET in environment variables. Exiting...");
+    process.exit(1);
+}
 const authenticateUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
-        const token = (_a = req.header("Authorization")) === null || _a === void 0 ? void 0 : _a.replace("Bearer ", "");
-        if (!token) {
+        const authHeader = req.header("Authorization");
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
             res.status(401).json({ success: false, message: "No token provided" });
             return;
         }
+        const token = authHeader.split(" ")[1];
         const decoded = jsonwebtoken_1.default.verify(token, JWT_SECRET);
-        if (!decoded || !decoded.userId) {
+        if (!(decoded === null || decoded === void 0 ? void 0 : decoded.userId)) {
             res.status(401).json({ success: false, message: "Invalid token" });
             return;
         }
-        // Fetch user from DB
+        // Fetch user from DB and exclude password
         const user = yield User_1.default.findById(decoded.userId).select("-password");
         if (!user) {
             res.status(401).json({ success: false, message: "User not found" });
             return;
         }
         req.user = user; // Attach user to request
-        next(); //  Call next() to continue execution
+        next(); // Proceed to next middleware
     }
     catch (error) {
-        res.status(401).json({ success: false, message: "Authentication failed" });
-        return;
+        if (error instanceof Error) {
+            if (error.name === "TokenExpiredError") {
+                res.status(401).json({ success: false, message: "Token expired" });
+                return;
+            }
+            if (error.name === "JsonWebTokenError") {
+                res.status(401).json({ success: false, message: "Invalid token" });
+                return;
+            }
+            console.error("🔥 Authentication error:", error.message);
+            res.status(500).json({ success: false, message: "Server error" });
+        }
+        else {
+            res
+                .status(500)
+                .json({ success: false, message: "An unknown error occurred" });
+        }
     }
 });
 exports.authenticateUser = authenticateUser;

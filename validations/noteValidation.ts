@@ -10,14 +10,19 @@ export const noteValidationSchema = Joi.object({
   }),
   category: Joi.alternatives()
     .try(
-      idParamSchema.extract("id"), //  Use the category ID validation
-      categoryValidationSchema //  Use the full category object validation
+      idParamSchema.extract("id"), // Validate category as an ObjectId
+      categoryValidationSchema // OR validate as a full category object
     )
     .required()
     .messages({
       "any.required": "Category is required",
+      "string.pattern.base": "Category ID must be a valid MongoDB ObjectId",
     }),
-  user: Joi.string().required().messages({
-    "string.empty": "User ID is required",
-  }),
+  user: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/) // Ensure user is a valid ObjectId
+    .required()
+    .messages({
+      "string.empty": "User ID is required",
+      "string.pattern.base": "User ID must be a valid MongoDB ObjectId",
+    }),
 });

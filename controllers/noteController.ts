@@ -104,10 +104,10 @@ export const updateNote = handleRequest(async (req, res) => {
 
   const updatedNote = await updateExistingNote(
     noteId,
+    req.user._id,
     title,
     content,
-    category,
-    req.user._id
+    category
   );
   if (!updatedNote)
     return sendErrorResponse(res, 404, "Note not found or unauthorized");

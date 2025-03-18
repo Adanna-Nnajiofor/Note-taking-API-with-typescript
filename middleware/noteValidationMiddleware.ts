@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import { noteValidationSchema } from "../validations/noteValidation";
 import { AuthRequest } from "../interfaces/Auth";
 
@@ -7,7 +7,9 @@ export const validateNote = (
   res: Response,
   next: NextFunction
 ): void => {
-  req.body.user = req.user?._id || req.user?.userId;
+  // Ensure user is a string
+  req.body.user =
+    req.user?._id?.toString() || req.user?.userId?.toString() || "";
 
   const { error, value } = noteValidationSchema.validate(req.body, {
     abortEarly: false,
@@ -17,7 +19,10 @@ export const validateNote = (
   if (error) {
     res.status(400).json({
       success: false,
-      errors: error.details.map((detail) => detail.message),
+      errors: error.details.map((detail) => ({
+        field: detail.path.join("."),
+        message: detail.message,
+      })),
     });
     return;
   }

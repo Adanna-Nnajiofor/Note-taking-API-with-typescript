@@ -14,14 +14,19 @@ exports.noteValidationSchema = joi_1.default.object({
         "string.empty": "Content is required",
     }),
     category: joi_1.default.alternatives()
-        .try(categoryValidation_1.idParamSchema.extract("id"), //  Use the category ID validation
-    categoryValidation_1.categoryValidationSchema //  Use the full category object validation
+        .try(categoryValidation_1.idParamSchema.extract("id"), // Validate category as an ObjectId
+    categoryValidation_1.categoryValidationSchema // OR validate as a full category object
     )
         .required()
         .messages({
         "any.required": "Category is required",
+        "string.pattern.base": "Category ID must be a valid MongoDB ObjectId",
     }),
-    user: joi_1.default.string().required().messages({
+    user: joi_1.default.string()
+        .regex(/^[0-9a-fA-F]{24}$/) // Ensure user is a valid ObjectId
+        .required()
+        .messages({
         "string.empty": "User ID is required",
+        "string.pattern.base": "User ID must be a valid MongoDB ObjectId",
     }),
 });

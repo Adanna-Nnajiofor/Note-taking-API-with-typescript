@@ -84,7 +84,7 @@ exports.updateNote = handleRequest((req, res) => __awaiter(void 0, void 0, void 
     const { title, content, category } = req.body;
     if (!title && !content && !category)
         return sendErrorResponse(res, 400, "At least one field is required for update");
-    const updatedNote = yield (0, noteService_1.updateExistingNote)(noteId, title, content, category, req.user._id);
+    const updatedNote = yield (0, noteService_1.updateExistingNote)(noteId, req.user._id, title, content, category);
     if (!updatedNote)
         return sendErrorResponse(res, 404, "Note not found or unauthorized");
     return res.status(200).json({ success: true, note: updatedNote });

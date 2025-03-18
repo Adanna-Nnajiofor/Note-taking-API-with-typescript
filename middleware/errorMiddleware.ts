@@ -7,7 +7,7 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  console.error("❌ Error:", err.message || err);
+  console.error(" Error:", err.message || err);
 
   // Set status code (default to 500 if not specified)
   const statusCode = err.statusCode || 500;
