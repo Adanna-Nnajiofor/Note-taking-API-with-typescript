@@ -5,12 +5,11 @@ const categoryValidation_1 = require("../validations/categoryValidation");
 const validateIdParam = (req, res, next) => {
     const { error } = categoryValidation_1.idParamSchema.validate({ id: req.params.id });
     if (error) {
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: error.details[0].message,
         });
-        return;
     }
-    next();
+    next(); // Continue to the next middleware
 };
 exports.validateIdParam = validateIdParam;

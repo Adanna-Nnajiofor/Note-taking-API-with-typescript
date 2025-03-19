@@ -10,8 +10,8 @@ const idCategoryValidation_1 = require("../middleware/idCategoryValidation");
 const router = express_1.default.Router();
 // Category Routes
 router.post("/", categoryValidationMiddleware_1.validateCategory, categoryController_1.createCategory);
-router.get("/", categoryController_1.getAllCategories);
-router.get("/:id", idCategoryValidation_1.validateIdParam, categoryController_1.getCategoryById);
+router.get("/", categoryController_1.fetchAllCategories);
+router.get("/:id", idCategoryValidation_1.validateIdParam, categoryController_1.fetchCategoryById);
 router.put("/:id", idCategoryValidation_1.validateIdParam, categoryValidationMiddleware_1.validateCategory, categoryController_1.updateCategory);
 router.delete("/:id", idCategoryValidation_1.validateIdParam, categoryController_1.deleteCategory);
 exports.default = router;

@@ -5,16 +5,15 @@ export const validateIdParam = (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
+): Response | void => {
   const { error } = idParamSchema.validate({ id: req.params.id });
 
   if (error) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       message: error.details[0].message,
     });
-    return;
   }
 
-  next();
+  next(); // Continue to the next middleware
 };

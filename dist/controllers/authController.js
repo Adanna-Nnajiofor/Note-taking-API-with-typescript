@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,50 +41,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.loginUser = exports.registerUser = void 0;
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const User_1 = __importDefault(require("../models/User"));
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-    throw new Error("Missing JWT_SECRET in environment variables");
-}
+const authService = __importStar(require("../services/authService"));
 /**
  * Register a new user
  */
 const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { username, email, password } = req.body;
-        if (!username || !email || !password) {
-            res
-                .status(400)
-                .json({ success: false, message: "All fields are required" });
-            return; // Ensure function execution stops here
-        }
-        const existingUser = yield User_1.default.findOne({ email });
-        if (existingUser) {
-            res.status(400).json({
-                success: false,
-                message: "User already exists. Please log in.",
-            });
-            return;
-        }
-        const newUser = new User_1.default({ username, email, password });
-        yield newUser.save();
+        const user = yield authService.registerUser(req.body);
         res.status(201).json({
             success: true,
-            message: "User registered successfully. Please login using your email and password to obtain a token.",
+            message: "User registered successfully. Please log in.",
+            user,
         });
     }
     catch (error) {
-        res
-            .status(500)
-            .json({ success: false, message: "Registration failed", error });
+        console.error("Registration Error:", error.message);
+        res.status(error.status || 500).json({
+            success: false,
+            message: error.message || "Registration failed",
+        });
     }
 });
 exports.registerUser = registerUser;
@@ -60,31 +70,19 @@ exports.registerUser = registerUser;
  */
 const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { email, password } = req.body;
-        const user = yield User_1.default.findOne({ email });
-        if (!user) {
-            res.status(401).json({
-                success: false,
-                message: "User not found. Please register first before attempting to log in.",
-            });
-            return;
-        }
-        if (!(yield user.comparePassword(password))) {
-            res.status(401).json({
-                success: false,
-                message: "Invalid email or password. Please try again.",
-            });
-            return;
-        }
-        const token = jsonwebtoken_1.default.sign({ userId: user._id }, JWT_SECRET, {
-            expiresIn: "1h",
+        const token = yield authService.loginUser(req.body);
+        res.status(200).json({
+            success: true,
+            message: "Login successful.",
+            token,
         });
-        res
-            .status(200)
-            .json({ success: true, message: "Login successful.", token });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: "Login failed", error });
+        console.error("Login Error:", error.message);
+        res.status(error.status || 500).json({
+            success: false,
+            message: error.message || "Login failed",
+        });
     }
 });
 exports.loginUser = loginUser;

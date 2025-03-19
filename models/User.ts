@@ -1,12 +1,12 @@
 import mongoose, { Schema, Document } from "mongoose";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { CallbackError } from "mongoose";
 
 export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
-  comparePassword: (candidatePassword: string) => Promise<boolean>;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const UserSchema: Schema = new Schema<IUser>(
@@ -20,26 +20,27 @@ const UserSchema: Schema = new Schema<IUser>(
 
 // Hash password before saving
 UserSchema.pre<IUser>("save", async function (next) {
-  if (!this.isModified("password")) return next(); // Only hash if password is new or modified
+  if (!this.isModified("password")) return next(); //  Only hash if password is new/modified
 
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next();
   } catch (error) {
-    console.error("❌ Password hashing error:", error);
-    next(error as CallbackError); // Ensure error is passed properly
+    console.error(" Password hashing error:", error);
+    return next(error as CallbackError); //  Properly pass error to Mongoose
   }
+  next();
 });
 
 // Compare passwords
 UserSchema.methods.comparePassword = async function (
+  this: IUser,
   candidatePassword: string
 ): Promise<boolean> {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
   } catch (error) {
-    console.error("❌ Password comparison error:", error);
+    console.error(" Password comparison error:", error);
     return false;
   }
 };

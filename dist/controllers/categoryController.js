@@ -8,24 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCategory = exports.updateCategory = exports.getCategoryById = exports.getAllCategories = exports.createCategory = void 0;
-const Category_1 = __importDefault(require("../models/Category"));
-// 📌 Create a New Category
+exports.deleteCategory = exports.updateCategory = exports.fetchCategoryById = exports.fetchAllCategories = exports.createCategory = void 0;
+const categoryServices_1 = require("../services/categoryServices");
+// Create a New Category
 const createCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, description } = req.body;
-        if (!name || !description) {
+        const category = yield (0, categoryServices_1.createNewCategory)(name, description);
+        if (!category) {
             res
                 .status(400)
-                .json({ success: false, message: "Name and description are required" });
+                .json({ success: false, message: "Invalid category data" });
             return;
         }
-        const category = new Category_1.default({ name, description });
-        yield category.save();
         res.status(201).json({ success: true, data: category });
     }
     catch (error) {
@@ -33,21 +29,21 @@ const createCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.createCategory = createCategory;
-// 📌 Get All Categories
-const getAllCategories = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+// Get All Categories
+const fetchAllCategories = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const categories = yield Category_1.default.find();
+        const categories = yield (0, categoryServices_1.getAllCategories)();
         res.status(200).json({ success: true, data: categories });
     }
     catch (error) {
         next(error);
     }
 });
-exports.getAllCategories = getAllCategories;
-// 📌 Get a Single Category by ID
-const getCategoryById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.fetchAllCategories = fetchAllCategories;
+// Get a Single Category by ID
+const fetchCategoryById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const category = yield Category_1.default.findById(req.params.id);
+        const category = yield (0, categoryServices_1.getCategoryById)(req.params.id);
         if (!category) {
             res.status(404).json({ success: false, message: "Category not found" });
             return;
@@ -58,8 +54,8 @@ const getCategoryById = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         next(error);
     }
 });
-exports.getCategoryById = getCategoryById;
-// 📌 Update a Category by ID
+exports.fetchCategoryById = fetchCategoryById;
+// Update a Category by ID
 const updateCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, description } = req.body;
@@ -70,12 +66,7 @@ const updateCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             });
             return;
         }
-        const updateData = {};
-        if (name)
-            updateData.name = name;
-        if (description)
-            updateData.description = description;
-        const category = yield Category_1.default.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true, runValidators: true });
+        const category = yield (0, categoryServices_1.updateCategoryById)(req.params.id, name, description);
         if (!category) {
             res.status(404).json({ success: false, message: "Category not found" });
             return;
@@ -87,10 +78,10 @@ const updateCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.updateCategory = updateCategory;
-// 📌 Delete a Category by ID
+// Delete a Category by ID
 const deleteCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const category = yield Category_1.default.findByIdAndDelete(req.params.id);
+        const category = yield (0, categoryServices_1.deleteCategoryById)(req.params.id);
         if (!category) {
             res.status(404).json({ success: false, message: "Category not found" });
             return;

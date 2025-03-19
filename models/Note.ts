@@ -12,7 +12,7 @@ export interface Note extends Document {
 
 const noteSchema = new Schema<Note>(
   {
-    title: { type: String, required: true },
+    title: { type: String, required: true, trim: true },
     content: { type: String, required: true },
     category: {
       type: Schema.Types.ObjectId,

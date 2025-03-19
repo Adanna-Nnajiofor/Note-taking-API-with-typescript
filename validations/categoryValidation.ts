@@ -20,12 +20,10 @@ export const categoryValidationSchema = Joi.object({
 
 // Schema for validating category ID
 export const idParamSchema = Joi.object({
-  id: Joi.string()
-    .pattern(/^[0-9a-fA-F]{24}$/)
-    .required()
-    .messages({
-      "string.base": "ID must be a string",
-      "string.pattern.base": "ID must be a valid MongoDB ObjectId",
-      "any.required": "ID is required",
-    }),
+  id: Joi.string().hex().length(24).required().messages({
+    "string.base": "ID must be a string",
+    "string.length": "ID must be exactly 24 characters long",
+    "string.hex": "ID must be a valid MongoDB ObjectId",
+    "any.required": "ID is required",
+  }),
 });

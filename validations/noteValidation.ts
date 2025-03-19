@@ -1,6 +1,13 @@
 import Joi from "joi";
-import { idParamSchema, categoryValidationSchema } from "./categoryValidation";
 
+// Joi schema for validating MongoDB ObjectId (24-character hex string)
+const objectIdSchema = Joi.string().hex().length(24).required().messages({
+  "string.empty": "{#label} is required",
+  "string.hex": "{#label} must be a valid MongoDB ObjectId",
+  "string.length": "{#label} must be exactly 24 characters long",
+});
+
+// Note validation schema
 export const noteValidationSchema = Joi.object({
   title: Joi.string().required().messages({
     "string.empty": "Title is required",
@@ -8,21 +15,6 @@ export const noteValidationSchema = Joi.object({
   content: Joi.string().required().messages({
     "string.empty": "Content is required",
   }),
-  category: Joi.alternatives()
-    .try(
-      idParamSchema.extract("id"), // Validate category as an ObjectId
-      categoryValidationSchema // OR validate as a full category object
-    )
-    .required()
-    .messages({
-      "any.required": "Category is required",
-      "string.pattern.base": "Category ID must be a valid MongoDB ObjectId",
-    }),
-  user: Joi.string()
-    .regex(/^[0-9a-fA-F]{24}$/) // Ensure user is a valid ObjectId
-    .required()
-    .messages({
-      "string.empty": "User ID is required",
-      "string.pattern.base": "User ID must be a valid MongoDB ObjectId",
-    }),
+  category: objectIdSchema.label("Category ID"), // Valid MongoDB ObjectId
+  user: objectIdSchema.label("User ID"), // Valid MongoDB ObjectId
 });

@@ -8,13 +8,15 @@ const validateCategory = (req, res, next) => {
         stripUnknown: true,
     });
     if (error) {
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
-            errors: error.details.map((detail) => detail.message),
+            errors: error.details.map((detail) => ({
+                field: detail.path.join("."), // Shows which field has the error
+                message: detail.message,
+            })),
         });
-        return; // Explicitly return to prevent further execution
     }
     req.body = value;
-    next(); // Ensure next() is always called
+    next(); // Continue to the next middleware
 };
 exports.validateCategory = validateCategory;

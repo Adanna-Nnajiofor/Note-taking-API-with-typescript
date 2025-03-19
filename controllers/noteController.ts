@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import {
   getAllNotes,
   getNoteById,
@@ -23,7 +23,10 @@ const handleRequest = <T extends AuthRequest>(
   fn: (req: T, res: Response, next: NextFunction) => Promise<Response | void>
 ) => {
   return (req: T, res: Response, next: NextFunction) => {
-    fn(req, res, next).catch(next);
+    fn(req, res, next).catch((error) => {
+      console.error("Error: ", error);
+      next(error);
+    });
   };
 };
 
@@ -77,8 +80,12 @@ export const createNote = handleRequest(async (req, res) => {
     return sendErrorResponse(res, 401, "Unauthorized");
 
   const { title, content, category } = req.body;
-  if (!title || !content)
-    return sendErrorResponse(res, 400, "Title and content are required");
+  if (!title || !content || !category)
+    return sendErrorResponse(
+      res,
+      400,
+      "Title, content, and category are required"
+    );
 
   const newNote = await createNewNote(title, content, category, req.user._id);
   return res.status(201).json({ success: true, note: newNote });

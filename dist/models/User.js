@@ -46,7 +46,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const UserSchema = new mongoose_1.Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
@@ -56,26 +56,26 @@ const UserSchema = new mongoose_1.Schema({
 UserSchema.pre("save", function (next) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!this.isModified("password"))
-            return next(); // Only hash if password is new or modified
+            return next(); //  Only hash if password is new/modified
         try {
-            const salt = yield bcrypt_1.default.genSalt(10);
-            this.password = yield bcrypt_1.default.hash(this.password, salt);
-            next();
+            const salt = yield bcryptjs_1.default.genSalt(10);
+            this.password = yield bcryptjs_1.default.hash(this.password, salt);
         }
         catch (error) {
-            console.error("❌ Password hashing error:", error);
-            next(error); // Ensure error is passed properly
+            console.error(" Password hashing error:", error);
+            return next(error); //  Properly pass error to Mongoose
         }
+        next();
     });
 });
 // Compare passwords
 UserSchema.methods.comparePassword = function (candidatePassword) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            return yield bcrypt_1.default.compare(candidatePassword, this.password);
+            return yield bcryptjs_1.default.compare(candidatePassword, this.password);
         }
         catch (error) {
-            console.error("❌ Password comparison error:", error);
+            console.error(" Password comparison error:", error);
             return false;
         }
     });

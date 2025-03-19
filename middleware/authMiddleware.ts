@@ -16,21 +16,28 @@ export const authenticateUser = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): Promise<Response | void> => {
   try {
     const authHeader = req.header("Authorization");
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json({ success: false, message: "No token provided" });
-      return;
+      return res
+        .status(401)
+        .json({ success: false, message: "No token provided" });
     }
 
     const token = authHeader.split(" ")[1];
+
+    if (!JWT_SECRET) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Server configuration error" });
+    }
+
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
 
     if (!decoded?.userId) {
-      res.status(401).json({ success: false, message: "Invalid token" });
-      return;
+      return res.status(401).json({ success: false, message: "Invalid token" });
     }
 
     // Fetch user from DB and exclude password
@@ -38,29 +45,22 @@ export const authenticateUser = async (
       "-password"
     );
     if (!user) {
-      res.status(401).json({ success: false, message: "User not found" });
-      return;
+      return res
+        .status(401)
+        .json({ success: false, message: "User not found" });
     }
 
     req.user = user; // Attach user to request
     next(); // Proceed to next middleware
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      if (error.name === "TokenExpiredError") {
-        res.status(401).json({ success: false, message: "Token expired" });
-        return;
-      }
-      if (error.name === "JsonWebTokenError") {
-        res.status(401).json({ success: false, message: "Invalid token" });
-        return;
-      }
+    console.error(" Authentication error:", error);
 
-      console.error("🔥 Authentication error:", error.message);
-      res.status(500).json({ success: false, message: "Server error" });
-    } else {
-      res
-        .status(500)
-        .json({ success: false, message: "An unknown error occurred" });
+    let message = "Server error";
+    if (error instanceof Error) {
+      if (error.name === "TokenExpiredError") message = "Token expired";
+      if (error.name === "JsonWebTokenError") message = "Invalid token";
     }
+
+    return res.status(401).json({ success: false, message });
   }
 };

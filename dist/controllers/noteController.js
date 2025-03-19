@@ -22,7 +22,10 @@ const sendErrorResponse = (res, status, message) => {
  */
 const handleRequest = (fn) => {
     return (req, res, next) => {
-        fn(req, res, next).catch(next);
+        fn(req, res, next).catch((error) => {
+            console.error("Error: ", error);
+            next(error);
+        });
     };
 };
 /**
@@ -67,8 +70,8 @@ exports.createNote = handleRequest((req, res) => __awaiter(void 0, void 0, void 
     if (!req.user || !req.user._id)
         return sendErrorResponse(res, 401, "Unauthorized");
     const { title, content, category } = req.body;
-    if (!title || !content)
-        return sendErrorResponse(res, 400, "Title and content are required");
+    if (!title || !content || !category)
+        return sendErrorResponse(res, 400, "Title, content, and category are required");
     const newNote = yield (0, noteService_1.createNewNote)(title, content, category, req.user._id);
     return res.status(201).json({ success: true, note: newNote });
 }));
