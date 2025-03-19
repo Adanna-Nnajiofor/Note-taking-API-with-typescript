@@ -5,7 +5,7 @@ import {
   createNewCategory,
   updateCategoryById,
   deleteCategoryById,
-} from "../services/categoryServices";
+} from "../services/categoryService";
 
 // Create a New Category
 export const createCategory = async (

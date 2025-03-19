@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteCategory = exports.updateCategory = exports.fetchCategoryById = exports.fetchAllCategories = exports.createCategory = void 0;
-const categoryServices_1 = require("../services/categoryServices");
+const categoryService_1 = require("../services/categoryService");
 // Create a New Category
 const createCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, description } = req.body;
-        const category = yield (0, categoryServices_1.createNewCategory)(name, description);
+        const category = yield (0, categoryService_1.createNewCategory)(name, description);
         if (!category) {
             res
                 .status(400)
@@ -32,7 +32,7 @@ exports.createCategory = createCategory;
 // Get All Categories
 const fetchAllCategories = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const categories = yield (0, categoryServices_1.getAllCategories)();
+        const categories = yield (0, categoryService_1.getAllCategories)();
         res.status(200).json({ success: true, data: categories });
     }
     catch (error) {
@@ -43,7 +43,7 @@ exports.fetchAllCategories = fetchAllCategories;
 // Get a Single Category by ID
 const fetchCategoryById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const category = yield (0, categoryServices_1.getCategoryById)(req.params.id);
+        const category = yield (0, categoryService_1.getCategoryById)(req.params.id);
         if (!category) {
             res.status(404).json({ success: false, message: "Category not found" });
             return;
@@ -66,7 +66,7 @@ const updateCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             });
             return;
         }
-        const category = yield (0, categoryServices_1.updateCategoryById)(req.params.id, name, description);
+        const category = yield (0, categoryService_1.updateCategoryById)(req.params.id, name, description);
         if (!category) {
             res.status(404).json({ success: false, message: "Category not found" });
             return;
@@ -81,7 +81,7 @@ exports.updateCategory = updateCategory;
 // Delete a Category by ID
 const deleteCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const category = yield (0, categoryServices_1.deleteCategoryById)(req.params.id);
+        const category = yield (0, categoryService_1.deleteCategoryById)(req.params.id);
         if (!category) {
             res.status(404).json({ success: false, message: "Category not found" });
             return;
